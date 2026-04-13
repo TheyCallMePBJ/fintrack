@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports | Finance Tracker</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f8fc;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: #1e88e5;
+            color: white;
+            padding: 1rem 0;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            background-color: #1565c0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        nav a {
+            color: white;
+            padding: 1rem 1.5rem;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        nav a:hover,
+        nav a.active {
+            background-color: #0d47a1;
+            transform: scale(1.05);
+        }
+
+        main {
+            padding: 1rem;
+            text-align: center;
+        }
+
+        main h2 {
+            font-size: 2rem;
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+
+        main p {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        section {
+            margin: 2.5rem auto;
+            padding: 2rem;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1), 0 -4px 8px 0 rgba(0, 0, 0, 0.1), 4px 0 8px 0 rgba(0, 0, 0, 0.1), -4px 0 8px 0 rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+        }
+
+        section h3 {
+            font-size: 1.5rem;
+            margin-top: 0;
+            margin-bottom: 1rem;
+            color: #1e88e5;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        input,
+        select,
+        button {
+            padding: 0.8rem;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        button {
+            background-color: #1e88e5;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #1565c0;
+            transform: scale(1.05);
+        }
+
+        footer {
+            background-color: #1565c0;
+            color: white;
+            text-align: center;
+            padding: 1rem 0;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Reports</h1>
+    </header>
+
+    <nav>
+        <a href="{{ url_for('index') }}">Home</a>
+        <a href="{{ url_for('expense') }}">Expenses</a>
+        <a href="{{ url_for('income') }}">Income</a>
+        <a href="{{ url_for('reports') }}" class="active">Reports</a>
+    </nav>
+
+    <main>
+        <section>
+            <h2>Generate Financial Reports</h2>
+            <form action="/reports" method="POST">
+                <label for="report-type">Report Type:</label>
+                <select id="report-type" name="report_type" required>
+                    <option value="income-expense">Income vs Expense Summary</option>
+                    <option value="category-analysis">Category Analysis</option>
+                </select>
+
+                <label for="start-date">Start Date:</label>
+                <input type="date" id="start-date" name="start_date" required>
+
+                <label for="end-date">End Date:</label>
+                <input type="date" id="end-date" name="end_date" required>
+
+                <button type="submit">Generate Report</button>
+            </form>
+        </section>
+        <section id="report-output">
+            <h3>Report Output</h3>
+        
+            {% if income_expense_summary %}
+                <h4>Income vs Expense Summary</h4>
+                <table border="1" style="margin: auto; width: 60%; border-collapse: collapse;">
+                    <tr>
+                        <th>Total Income</th>
+                        <th>Total Expense</th>
+                        <th>Net</th>
+                    </tr>
+                    <tr>
+                        <td>{{ income_expense_summary.income }}</td>
+                        <td>{{ income_expense_summary.expense }}</td>
+                        <td>{{ income_expense_summary.net }}</td>
+                    </tr>
+                </table>
+            {% elif category_summary %}
+                <h4>Category Analysis</h4>
+                <table border="1" style="margin: auto; width: 60%; border-collapse: collapse;">
+                    <tr>
+                        <th>Category</th>
+                        <th>Total Expense</th>
+                    </tr>
+                    {% for category, total in category_summary %}
+                    <tr>
+                        <td>{{ category }}</td>
+                        <td>{{ total }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            {% else %}
+                <p>No report generated yet. Please fill out the form above and click "Generate Report" to see the results here.</p>
+            {% endif %}
+        </section>
+        
+    </main>
+</body>
+
+</html>
