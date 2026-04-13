@@ -1,4 +1,4 @@
-package com.financetracker.fintrack;
+package com.financetracker.fintrack.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
