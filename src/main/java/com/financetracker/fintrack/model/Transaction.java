@@ -9,15 +9,48 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Double amount;
-    private String type; // income or expense
-    private String category;
+    private double amount;
+    private String description;
+    private String type;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
     private User user;
 
-    public Transaction() {}
+    // 🔽 ADD THESE
 
-    // Getters and Setters
+    public Long getId() {
+        return id;
+    }
+
+    public double getAmount() {
+        return amount;
+    }
+
+    public void setAmount(double amount) {
+        this.amount = amount;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
 }
