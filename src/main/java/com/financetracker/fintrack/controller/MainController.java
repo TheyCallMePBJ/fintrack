@@ -23,13 +23,13 @@ public class MainController {
             return "redirect:/login";
         }
 
-        double income = service.getTotalIncome();
-        double expense = service.getTotalExpense();
+        double income = service.getCurrentMonthTotalIncome();
+        double expense = service.getCurrentMonthTotalExpense();
 
         model.addAttribute("totalIncome", income);
         model.addAttribute("totalExpense", expense);
         model.addAttribute("balance", income - expense);
-        model.addAttribute("transactions", service.getAll());
+        model.addAttribute("transactions", service.getRecentTransactions());
 
         return "index";
     }

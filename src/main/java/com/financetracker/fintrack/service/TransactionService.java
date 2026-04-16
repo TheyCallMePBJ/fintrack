@@ -4,6 +4,8 @@ import com.financetracker.fintrack.model.Transaction;
 import com.financetracker.fintrack.repository.TransactionRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 
 @Service
@@ -26,16 +28,26 @@ public class TransactionService {
     public List<Transaction> getByType(String type) {
         return repo.findByType(type);
     }
+    
+    public List<Transaction> getRecentTransactions() {
+        return repo.findTop5ByOrderByDateDesc();
+    }
 
-    public double getTotalIncome() {
-        return repo.findByType("income")
+    public double getCurrentMonthTotalIncome() {
+        YearMonth currentMonth = YearMonth.now();
+        LocalDate start = currentMonth.atDay(1);
+        LocalDate end = currentMonth.atEndOfMonth();
+        return repo.findByTypeAndDateBetween("income", start, end)
                    .stream()
                    .mapToDouble(Transaction::getAmount)
                    .sum();
     }
 
-    public double getTotalExpense() {
-        return repo.findByType("expense")
+    public double getCurrentMonthTotalExpense() {
+        YearMonth currentMonth = YearMonth.now();
+        LocalDate start = currentMonth.atDay(1);
+        LocalDate end = currentMonth.atEndOfMonth();
+        return repo.findByTypeAndDateBetween("expense", start, end)
                    .stream()
                    .mapToDouble(Transaction::getAmount)
                    .sum();

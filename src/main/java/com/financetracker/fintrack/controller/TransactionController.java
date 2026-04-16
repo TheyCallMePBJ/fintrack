@@ -31,17 +31,17 @@ public class TransactionController {
 
     @PostMapping("/expense")
     public String addExpense(
-            @RequestParam String expense_name,
-            @RequestParam double expense_amount,
-            @RequestParam String expense_category,
-            @RequestParam String expense_date
+            @RequestParam String description,
+            @RequestParam double amount,
+            @RequestParam String category,
+            @RequestParam String date
     ) {
         Transaction t = new Transaction();
-        t.setDescription(expense_name);
-        t.setAmount(expense_amount);
-        t.setCategory(expense_category);
+        t.setDescription(description);
+        t.setAmount(amount);
+        t.setCategory(category);
         t.setType("expense");
-        t.setDate(LocalDate.parse(expense_date));
+        t.setDate(LocalDate.parse(date));
 
         service.save(t);
         return "redirect:/expense";
@@ -59,15 +59,17 @@ public class TransactionController {
 
     @PostMapping("/income")
     public String addIncome(
-            @RequestParam String income_source,
-            @RequestParam double income_amount,
-            @RequestParam String income_date
+            @RequestParam String description,
+            @RequestParam double amount,
+            @RequestParam String category,
+            @RequestParam String date
     ) {
         Transaction t = new Transaction();
-        t.setDescription(income_source);
-        t.setAmount(income_amount);
+        t.setDescription(description);
+        t.setAmount(amount);
+        t.setCategory(category);
         t.setType("income");
-        t.setDate(LocalDate.parse(income_date));
+        t.setDate(LocalDate.parse(date));
 
         service.save(t);
         return "redirect:/income";

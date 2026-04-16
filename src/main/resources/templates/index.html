@@ -1,127 +1,153 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Personal Finance Tracker</title>
+    <title>Dashboard | FinTrack</title>
     <style>
+        :root {
+            --bg-color: #fcfcfc;
+            --text-color: #111;
+            --muted-color: #666;
+            --border-color: #eaeaea;
+            --card-bg: #fff;
+            --primary-color: #000;
+        }
         body {
-            font-family: 'Roboto', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f8fc;
-            color: #333;
-            line-height: 1.6;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.5;
         }
-
         header {
-            background-color: #1e88e5;
-            color: white;
-            padding: 1rem 0;
-            text-align: center;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        header h1 {
-            margin: 0;
-            font-size: 2.5rem;
-        }
-
-        nav {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--card-bg);
             display: flex;
-            justify-content: center;
-            background-color: #1565c0;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            justify-content: space-between;
+            align-items: center;
         }
-
+        header h1 { margin: 0; font-size: 1.25rem; font-weight: 600; }
         nav a {
-            color: white;
-            padding: 1rem 1.5rem;
+            color: var(--muted-color);
             text-decoration: none;
-            text-transform: uppercase;
-            font-weight: bold;
-            font-size: 0.9rem;
-            transition: background-color 0.3s ease, transform 0.2s ease;
+            margin-left: 1.5rem;
+            font-size: 0.95rem;
+            transition: color 0.2s;
         }
-
-        nav a:hover,
-        nav a.active {
-            background-color: #0d47a1;
-            transform: scale(1.05);
-        }
-
+        nav a:hover, nav a.active { color: var(--primary-color); font-weight: 500; }
         main {
-            padding: 2.5rem;
-            text-align: center;
+            max-width: 900px;
+            margin: 3rem auto;
+            padding: 0 2rem;
         }
-
-        main h2 {
-            font-size: 2rem;
-            margin-bottom: 1rem;
+        h2 { font-size: 1.75rem; font-weight: 500; margin-bottom: 2rem; }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
         }
-
-        main p {
-            font-size: 1.1rem;
-            margin-bottom: 2rem;
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
         }
-
-        section {
-            margin: 2.5rem auto;
-            padding: 2rem;
-            background-color: #ffffff;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            max-width: 800px;
-        }
-
-        section h3 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            color: #1e88e5;
-        }
-
-        footer {
-            background-color: #1565c0;
-            color: white;
-            text-align: center;
-            padding: 1rem 0;
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+        .card h3 {
+            margin: 0 0 0.5rem;
             font-size: 0.9rem;
+            color: var(--muted-color);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
+        .card .amount {
+            font-size: 2rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        .positive { color: #10b981; }
+        .negative { color: #ef4444; }
+        .recent-section {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+        .recent-section h3 { margin-top: 0; font-size: 1.2rem; font-weight: 500; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1rem;}
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid var(--border-color); font-size: 0.95rem; }
+        th { color: var(--muted-color); font-weight: 500; }
+        tr:last-child td { border-bottom: none; }
+        .type-badge {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            text-transform: capitalize;
+        }
+        .badge-income { background: #e6f6ec; color: #10b981; }
+        .badge-expense { background: #fbeae9; color: #ef4444; }
     </style>
 </head>
-
 <body>
     <header>
-        <h1>Welcome to the Finlytics</h1>
+        <h1>FinTrack</h1>
+        <nav>
+            <a th:href="@{/}" class="active">Dashboard</a>
+            <a th:href="@{/income}">Income</a>
+            <a th:href="@{/expense}">Expenses</a>
+        </nav>
     </header>
-    <nav>
-        <a href="{{ url_for('index') }}" class="active">Home</a>
-        <a href="{{ url_for('expense') }}">Expenses</a>
-        <a href="{{ url_for('income') }}">Income</a>
-        <a href="{{ url_for('reports') }}">Reports</a>
-    </nav>
     <main>
-        <h2>Track Your Finances with Ease</h2>
-        <p>A personal finance tracker helps you monitor your income and expenses, track spending patterns, and manage
-            your budget effectively by using apps, spreadsheets, or other tools.</p>
-        <section id="expenses">
-            <h3>Expenses</h3>
-            <p>Log and categorize your expenses to understand your spending habits.</p>
-        </section>
-        <section id="income">
-            <h3>Income</h3>
-            <p>Track your income sources and ensure you're meeting your financial goals.</p>
-        </section>
-        <section id="reports">
-            <h3>Reports</h3>
-            <p>Generate detailed reports to analyze your financial trends over time.</p>
+        <h2>Current Month Overview</h2>
+        
+        <div class="dashboard-grid">
+            <div class="card">
+                <h3>Income</h3>
+                <p class="amount positive" th:text="${'$' + #numbers.formatDecimal(totalIncome, 1, 'COMMA', 2, 'POINT')}">$0.00</p>
+            </div>
+            <div class="card">
+                <h3>Expense</h3>
+                <p class="amount negative" th:text="${'$' + #numbers.formatDecimal(totalExpense, 1, 'COMMA', 2, 'POINT')}">$0.00</p>
+            </div>
+            <div class="card">
+                <h3>Net Balance</h3>
+                <p class="amount" th:text="${'$' + #numbers.formatDecimal(balance, 1, 'COMMA', 2, 'POINT')}">$0.00</p>
+            </div>
+        </div>
+
+        <section class="recent-section">
+            <h3>Recent Transactions</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Category</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="tx : ${transactions}">
+                        <td th:text="${#temporals.format(tx.date, 'MMM dd, yyyy')}">Jan 01, 2023</td>
+                        <td th:text="${tx.description}">Grocery</td>
+                        <td th:text="${tx.category}">Food</td>
+                        <td>
+                            <span th:class="${'type-badge ' + (tx.type == 'income' ? 'badge-income' : 'badge-expense')}" th:text="${tx.type}">Expense</span>
+                        </td>
+                        <td th:text="${'$' + #numbers.formatDecimal(tx.amount, 1, 'COMMA', 2, 'POINT')}">$0.00</td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(transactions)}">
+                        <td colspan="5" style="text-align: center; color: var(--muted-color); padding: 2rem;">No recent transactions.</td>
+                    </tr>
+                </tbody>
+            </table>
         </section>
     </main>
 </body>
-
 </html>
