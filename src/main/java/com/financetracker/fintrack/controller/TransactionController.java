@@ -1,64 +1,65 @@
 package com.financetracker.fintrack.controller;
 
 import com.financetracker.fintrack.model.Transaction;
-import com.financetracker.fintrack.model.User;
-import com.financetracker.fintrack.repository.TransactionRepository;
-import com.financetracker.fintrack.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.financetracker.fintrack.service.TransactionService;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 
 @Controller
 public class TransactionController {
 
-    @Autowired
-    private TransactionRepository transactionRepository;
+    private final TransactionService service;
 
-    @Autowired
-    private UserRepository userRepository;
-
-    // TEMP: using user id = 1 (we'll fix login later)
-    private User getDummyUser() {
-        return userRepository.findById(1L).orElse(null);
-    }
-
-    @GetMapping("/income")
-    public String incomePage() {
-        return "income";
-    }
-
-    @PostMapping("/income")
-    public String addIncome(@RequestParam double amount,
-                            @RequestParam String description) {
-
-        Transaction t = new Transaction();
-        t.setAmount(amount);
-        t.setDescription(description);
-        t.setType("income");
-        t.setUser(getDummyUser());
-
-        transactionRepository.save(t);
-
-        return "redirect:/home";
+    public TransactionController(TransactionService service) {
+        this.service = service;
     }
 
     @GetMapping("/expense")
-    public String expensePage() {
+    public String expensePage(Model model) {
+        model.addAttribute("recent_expenses", service.getByType("expense"));
         return "expense";
     }
 
     @PostMapping("/expense")
-    public String addExpense(@RequestParam double amount,
-                             @RequestParam String description) {
-
+    public String addExpense(
+            @RequestParam String expense_name,
+            @RequestParam double expense_amount,
+            @RequestParam String expense_category,
+            @RequestParam String expense_date
+    ) {
         Transaction t = new Transaction();
-        t.setAmount(amount);
-        t.setDescription(description);
+        t.setDescription(expense_name);
+        t.setAmount(expense_amount);
+        t.setCategory(expense_category);
         t.setType("expense");
-        t.setUser(getDummyUser());
+        t.setDate(LocalDate.parse(expense_date));
 
-        transactionRepository.save(t);
+        service.save(t);
+        return "redirect:/expense";
+    }
 
-        return "redirect:/home";
+    @GetMapping("/income")
+    public String incomePage(Model model) {
+        model.addAttribute("recent_incomes", service.getByType("income"));
+        return "income";
+    }
+
+    @PostMapping("/income")
+    public String addIncome(
+            @RequestParam String income_source,
+            @RequestParam double income_amount,
+            @RequestParam String income_date
+    ) {
+        Transaction t = new Transaction();
+        t.setDescription(income_source);
+        t.setAmount(income_amount);
+        t.setType("income");
+        t.setDate(LocalDate.parse(income_date));
+
+        service.save(t);
+        return "redirect:/income";
     }
 }

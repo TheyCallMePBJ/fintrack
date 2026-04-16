@@ -1,6 +1,7 @@
 package com.financetracker.fintrack.model;
 
 import jakarta.persistence.*;
+import java.time.LocalDate;
 
 @Entity
 public class Transaction {
@@ -9,48 +10,27 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String description;   // name
     private double amount;
-    private String description;
-    private String type;
+    private String type;          // "income" or "expense"
+    private String category;      // optional
+    private LocalDate date;
 
-    @ManyToOne
-    private User user;
+    // ===== GETTERS & SETTERS =====
+    public Long getId() { return id; }
 
-    // 🔽 ADD THESE
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 
-    public Long getId() {
-        return id;
-    }
+    public double getAmount() { return amount; }
+    public void setAmount(double amount) { this.amount = amount; }
 
-    public double getAmount() {
-        return amount;
-    }
+    public String getType() { return type; }
+    public void setType(String type) { this.type = type; }
 
-    public void setAmount(double amount) {
-        this.amount = amount;
-    }
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
+    public LocalDate getDate() { return date; }
+    public void setDate(LocalDate date) { this.date = date; }
 }
