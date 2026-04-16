@@ -14,4 +14,5 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     
     List<Transaction> findTop5ByOrderByDateDesc();
 
+    List<Transaction> findByDateBetweenOrderByDateDesc(LocalDate startDate, LocalDate endDate);
 }

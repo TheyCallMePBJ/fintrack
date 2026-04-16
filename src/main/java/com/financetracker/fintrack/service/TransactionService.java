@@ -29,6 +29,10 @@ public class TransactionService {
         return repo.findByType(type);
     }
     
+    public List<Transaction> getByTypeAndDateRange(String type, LocalDate start, LocalDate end) {
+        return repo.findByTypeAndDateBetween(type, start, end);
+    }
+    
     public List<Transaction> getRecentTransactions() {
         return repo.findTop5ByOrderByDateDesc();
     }
@@ -45,11 +49,19 @@ public class TransactionService {
 
     public double getCurrentMonthTotalExpense() {
         YearMonth currentMonth = YearMonth.now();
-        LocalDate start = currentMonth.atDay(1);
-        LocalDate end = currentMonth.atEndOfMonth();
-        return repo.findByTypeAndDateBetween("expense", start, end)
-                   .stream()
-                   .mapToDouble(Transaction::getAmount)
-                   .sum();
+        List<Transaction> expenses = repo.findByTypeAndDateBetween("expense", currentMonth.atDay(1), currentMonth.atEndOfMonth());
+        return expenses.stream().mapToDouble(Transaction::getAmount).sum();
+    }
+
+    public List<Transaction> getByDateRange(LocalDate start, LocalDate end) {
+        return repo.findByDateBetweenOrderByDateDesc(start, end);
+    }
+
+    public Transaction getById(Long id) {
+        return repo.findById(id).orElse(null);
+    }
+
+    public void delete(Long id) {
+        repo.deleteById(id);
     }
 }

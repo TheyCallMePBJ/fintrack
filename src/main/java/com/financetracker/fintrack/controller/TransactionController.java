@@ -31,7 +31,7 @@ public class TransactionController {
 
     @PostMapping("/expense")
     public String addExpense(
-            @RequestParam String description,
+            @RequestParam(required = false) String description,
             @RequestParam double amount,
             @RequestParam String category,
             @RequestParam String date
@@ -59,7 +59,7 @@ public class TransactionController {
 
     @PostMapping("/income")
     public String addIncome(
-            @RequestParam String description,
+            @RequestParam(required = false) String description,
             @RequestParam double amount,
             @RequestParam String category,
             @RequestParam String date
@@ -73,5 +73,50 @@ public class TransactionController {
 
         service.save(t);
         return "redirect:/income";
+    }
+
+    @PostMapping("/history/delete/{id}")
+    public String deleteTransaction(@PathVariable Long id, HttpSession session) {
+        if (session.getAttribute("user") == null) {
+            return "redirect:/login";
+        }
+        service.delete(id);
+        return "redirect:/history";
+    }
+
+    @GetMapping("/history/edit/{id}")
+    public String editTransactionPage(@PathVariable Long id, Model model, HttpSession session) {
+        if (session.getAttribute("user") == null) {
+            return "redirect:/login";
+        }
+        Transaction tx = service.getById(id);
+        if (tx == null) {
+            return "redirect:/history";
+        }
+        model.addAttribute("transaction", tx);
+        return "edit-transaction";
+    }
+
+    @PostMapping("/history/edit/{id}")
+    public String editTransaction(
+            @PathVariable Long id,
+            @RequestParam(required = false) String description,
+            @RequestParam double amount,
+            @RequestParam String category,
+            @RequestParam String date,
+            HttpSession session
+    ) {
+        if (session.getAttribute("user") == null) {
+            return "redirect:/login";
+        }
+        Transaction t = service.getById(id);
+        if (t != null) {
+            t.setDescription(description);
+            t.setAmount(amount);
+            t.setCategory(category);
+            t.setDate(LocalDate.parse(date));
+            service.save(t);
+        }
+        return "redirect:/history";
     }
 }

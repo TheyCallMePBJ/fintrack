@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction History | FinTrack</title>
+    <style>
+        :root {
+            --bg-color: #fcfcfc;
+            --text-color: #111;
+            --muted-color: #666;
+            --border-color: #eaeaea;
+            --card-bg: #fff;
+            --primary-color: #000;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-color); line-height: 1.5; }
+        header { padding: 1.5rem 2rem; border-bottom: 1px solid var(--border-color); background: var(--card-bg); display: flex; justify-content: space-between; align-items: center; }
+        header h1 { margin: 0; font-size: 1.25rem; font-weight: 600; }
+        nav a { color: var(--muted-color); text-decoration: none; margin-left: 1.5rem; font-size: 0.95rem; transition: color 0.2s; }
+        nav a:hover, nav a.active { color: var(--primary-color); font-weight: 500; }
+        main { max-width: 900px; margin: 3rem auto; padding: 0 2rem; }
+        h2 { font-size: 1.75rem; font-weight: 500; margin-bottom: 1.5rem; text-align: center; }
+        
+        .filter-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.02); display: flex; gap: 1rem; align-items: flex-end; justify-content: center; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { font-size: 0.85rem; font-weight: 500; color: var(--muted-color); margin-bottom: 0.5rem; }
+        .form-group input { padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 4px; font-size: 0.95rem; outline: none; transition: border-color 0.2s; font-family: inherit; }
+        .form-group input:focus { border-color: var(--primary-color); }
+        .filter-btn { background: var(--primary-color); color: #fff; border: none; padding: 0.75rem 1.5rem; border-radius: 4px; font-size: 0.95rem; font-weight: 500; cursor: pointer; transition: opacity 0.2s; height: 42px; font-family: inherit; }
+        .filter-btn:hover { opacity: 0.9; }
+
+        .table-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; overflow-x: auto;}
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid var(--border-color); font-size: 0.95rem; }
+        th { color: var(--muted-color); font-weight: 500; }
+        tr:last-child td { border-bottom: none; }
+        .type-badge { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; text-transform: capitalize; }
+        .badge-income { background: #e6f6ec; color: #10b981; }
+        .badge-expense { background: #fbeae9; color: #ef4444; }
+        
+        .action-btns { display: flex; gap: 0.5rem; }
+        .action-btns a, .action-btns button { background: none; border: none; padding: 0.3rem 0.6rem; font-size: 0.85rem; border-radius: 4px; cursor: pointer; text-decoration: none; display: inline-block; font-family: inherit; }
+        .btn-edit { background: var(--border-color); color: var(--text-color); }
+        .btn-edit:hover { background: #ddd; }
+        .btn-delete { background: #fbeae9; color: #ef4444; }
+        .btn-delete:hover { background: #fecaca; }
+        form { margin: 0; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>FinTrack</h1>
+        <nav>
+            <a th:href="@{/}">Dashboard</a>
+            <a th:href="@{/income}">Income</a>
+            <a th:href="@{/expense}">Expenses</a>
+            <a th:href="@{/history}" class="active">History</a>
+            <a th:href="@{/reports}">Reports</a>
+            <a th:href="@{/logout}" style="color: #ef4444;">Logout</a>
+        </nav>
+    </header>
+    <main>
+        <h2>Transaction History</h2>
+        
+        <div class="filter-card">
+            <form action="/history" method="GET" style="display: flex; gap: 1rem; width: 100%; justify-content: center; align-items: flex-end;">
+                <div class="form-group">
+                    <label for="startDate">From</label>
+                    <input type="date" id="startDate" name="startDate" th:value="${startDate}">
+                </div>
+                <div class="form-group">
+                    <label for="endDate">To</label>
+                    <input type="date" id="endDate" name="endDate" th:value="${endDate}">
+                </div>
+                <button type="submit" class="filter-btn">Filter</button>
+            </form>
+        </div>
+
+        <div class="table-card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Category</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="tx : ${transactions}">
+                        <td th:text="${#temporals.format(tx.date, 'MMM dd, yyyy')}">Jan 01, 2023</td>
+                        <td th:text="${tx.description}">Grocery</td>
+                        <td th:text="${tx.category}">Food</td>
+                        <td>
+                            <span th:class="${'type-badge ' + (tx.type == 'income' ? 'badge-income' : 'badge-expense')}" th:text="${tx.type}">Expense</span>
+                        </td>
+                        <td th:text="${'₹' + #numbers.formatDecimal(tx.amount, 1, 'COMMA', 2, 'POINT')}">₹0.00</td>
+                        <td>
+                            <div class="action-btns">
+                                <a th:href="@{/history/edit/{id}(id=${tx.id})}" class="btn-edit">Edit</a>
+                                <form th:action="@{/history/delete/{id}(id=${tx.id})}" method="POST" onsubmit="return confirm('Delete this transaction?');">
+                                    <button type="submit" class="btn-delete">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(transactions)}">
+                        <td colspan="6" style="text-align: center; color: var(--muted-color); padding: 2rem;">No transactions found in this period.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</body>
+</html>

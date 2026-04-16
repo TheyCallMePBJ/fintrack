@@ -100,6 +100,9 @@
             <a th:href="@{/}" class="active">Dashboard</a>
             <a th:href="@{/income}">Income</a>
             <a th:href="@{/expense}">Expenses</a>
+            <a th:href="@{/history}">History</a>
+            <a th:href="@{/reports}">Reports</a>
+            <a th:href="@{/logout}" style="color: #ef4444;">Logout</a>
         </nav>
     </header>
     <main>
@@ -108,15 +111,15 @@
         <div class="dashboard-grid">
             <div class="card">
                 <h3>Income</h3>
-                <p class="amount positive" th:text="${'$' + #numbers.formatDecimal(totalIncome, 1, 'COMMA', 2, 'POINT')}">$0.00</p>
+                <p class="amount positive" th:text="${'₹' + #numbers.formatDecimal(totalIncome, 1, 'COMMA', 2, 'POINT')}">₹0.00</p>
             </div>
             <div class="card">
                 <h3>Expense</h3>
-                <p class="amount negative" th:text="${'$' + #numbers.formatDecimal(totalExpense, 1, 'COMMA', 2, 'POINT')}">$0.00</p>
+                <p class="amount negative" th:text="${'₹' + #numbers.formatDecimal(totalExpense, 1, 'COMMA', 2, 'POINT')}">₹0.00</p>
             </div>
             <div class="card">
                 <h3>Net Balance</h3>
-                <p class="amount" th:text="${'$' + #numbers.formatDecimal(balance, 1, 'COMMA', 2, 'POINT')}">$0.00</p>
+                <p class="amount" th:text="${'₹' + #numbers.formatDecimal(balance, 1, 'COMMA', 2, 'POINT')}">₹0.00</p>
             </div>
         </div>
 
@@ -140,7 +143,7 @@
                         <td>
                             <span th:class="${'type-badge ' + (tx.type == 'income' ? 'badge-income' : 'badge-expense')}" th:text="${tx.type}">Expense</span>
                         </td>
-                        <td th:text="${'$' + #numbers.formatDecimal(tx.amount, 1, 'COMMA', 2, 'POINT')}">$0.00</td>
+                        <td th:text="${'₹' + #numbers.formatDecimal(tx.amount, 1, 'COMMA', 2, 'POINT')}">₹0.00</td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(transactions)}">
                         <td colspan="5" style="text-align: center; color: var(--muted-color); padding: 2rem;">No recent transactions.</td>
