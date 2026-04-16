@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 
+import jakarta.servlet.http.HttpSession;
+
 @Controller
 public class TransactionController {
 
@@ -18,7 +20,11 @@ public class TransactionController {
     }
 
     @GetMapping("/expense")
-    public String expensePage(Model model) {
+    public String expensePage(Model model, HttpSession session) {
+        if (session.getAttribute("user") == null) {
+            return "redirect:/login";
+        }
+
         model.addAttribute("recent_expenses", service.getByType("expense"));
         return "expense";
     }
@@ -42,7 +48,11 @@ public class TransactionController {
     }
 
     @GetMapping("/income")
-    public String incomePage(Model model) {
+    public String incomePage(Model model, HttpSession session) {
+        if (session.getAttribute("user") == null) {
+            return "redirect:/login";
+        }
+
         model.addAttribute("recent_incomes", service.getByType("income"));
         return "income";
     }

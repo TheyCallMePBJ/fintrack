@@ -1,33 +1,20 @@
 package com.financetracker.fintrack.controller;
 
 import com.financetracker.fintrack.model.User;
-import com.financetracker.fintrack.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.financetracker.fintrack.service.UserService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @Controller
 public class AuthController {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserService service;
 
-    @GetMapping("/register")
-    public String registerPage() {
-        return "register";
-    }
-
-    @PostMapping("/register")
-    public String registerUser(@RequestParam String username,
-                               @RequestParam String password) {
-
-        User user = new User();
-        user.setUsername(username);
-        user.setPassword(password);
-
-        userRepository.save(user);
-
-        return "redirect:/";
+    public AuthController(UserService service) {
+        this.service = service;
     }
 
     @GetMapping("/login")
@@ -35,16 +22,42 @@ public class AuthController {
         return "login";
     }
 
-    @PostMapping("/login")
-    public String loginUser(@RequestParam String username,
+    @GetMapping("/register")
+    public String registerPage() {
+        return "register";
+    }
+
+    @PostMapping("/register")
+    public String register(@RequestParam String username,
                            @RequestParam String password) {
 
-        User user = userRepository.findByUsername(username).orElse(null);
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword(password);
 
-        if (user != null && user.getPassword().equals(password)) {
-            return "redirect:/home";
+        service.register(user);
+
+        return "redirect:/login";
+    }
+
+    @PostMapping("/login")
+    public String login(@RequestParam String username,
+                        @RequestParam String password,
+                        HttpSession session) {
+
+        Optional<User> user = service.login(username, password);
+
+        if (user.isPresent()) {
+            session.setAttribute("user", user.get());
+            return "redirect:/";
         }
 
+        return "redirect:/login?error=true";
+    }
+
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate();
         return "redirect:/login";
     }
 }

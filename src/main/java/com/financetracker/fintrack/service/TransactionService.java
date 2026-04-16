@@ -26,4 +26,18 @@ public class TransactionService {
     public List<Transaction> getByType(String type) {
         return repo.findByType(type);
     }
+
+    public double getTotalIncome() {
+        return repo.findByType("income")
+                   .stream()
+                   .mapToDouble(Transaction::getAmount)
+                   .sum();
+    }
+
+    public double getTotalExpense() {
+        return repo.findByType("expense")
+                   .stream()
+                   .mapToDouble(Transaction::getAmount)
+                   .sum();
+    }
 }
