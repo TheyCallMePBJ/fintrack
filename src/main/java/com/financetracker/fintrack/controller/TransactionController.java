@@ -22,40 +22,39 @@ public class TransactionController {
         this.nlpParser = nlpParser;
     }
 
-    @GetMapping("/expense")
-    public String expensePage(Model model, HttpSession session) {
+    @GetMapping("/transaction")
+    public String transactionPage(Model model, HttpSession session) {
         if (session.getAttribute("user") == null) {
             return "redirect:/login";
         }
-
-        model.addAttribute("recent_expenses", service.getByType("expense"));
-        return "expense";
+        return "add-transaction";
     }
 
-    @PostMapping("/expense")
-    public String addExpense(
+    @PostMapping("/transaction")
+    public String addTransaction(
             @RequestParam(required = false) String description,
             @RequestParam double amount,
             @RequestParam String category,
-            @RequestParam String date
+            @RequestParam String date,
+            @RequestParam String type
     ) {
         Transaction t = new Transaction();
         t.setDescription(description);
         t.setAmount(amount);
         t.setCategory(category);
-        t.setType("expense");
+        t.setType(type);
         t.setDate(LocalDate.parse(date));
 
         service.save(t);
-        return "redirect:/expense";
+        return "redirect:/transaction";
     }
 
     /**
-     * Feature 3: Smart NLP Expense Input
-     * Parses a natural-language sentence and pre-fills the expense form.
+     * Feature 3: Smart NLP Transaction Input
+     * Parses a natural-language sentence and pre-fills the transaction form.
      */
-    @PostMapping("/expense/nlp")
-    public String parseNlpExpense(
+    @PostMapping("/transaction/nlp")
+    public String parseNlpTransaction(
             @RequestParam String nlpInput,
             HttpSession session
     ) {
@@ -66,43 +65,16 @@ public class TransactionController {
         Transaction parsed = nlpParser.parse(nlpInput);
         if (parsed == null) {
             // Could not parse — redirect back with error flag
-            return "redirect:/expense?nlpError=true";
+            return "redirect:/transaction?nlpError=true";
         }
 
         // Pre-fill the form via query parameters
-        String redirect = "redirect:/expense?nlpAmount=" + parsed.getAmount()
+        String redirect = "redirect:/transaction?nlpAmount=" + parsed.getAmount()
             + "&nlpCategory=" + java.net.URLEncoder.encode(parsed.getCategory(), java.nio.charset.StandardCharsets.UTF_8)
             + "&nlpDate=" + parsed.getDate()
+            + "&nlpType=" + parsed.getType()
             + "&nlpDescription=" + java.net.URLEncoder.encode(parsed.getDescription(), java.nio.charset.StandardCharsets.UTF_8);
         return redirect;
-    }
-
-    @GetMapping("/income")
-    public String incomePage(Model model, HttpSession session) {
-        if (session.getAttribute("user") == null) {
-            return "redirect:/login";
-        }
-
-        model.addAttribute("recent_incomes", service.getByType("income"));
-        return "income";
-    }
-
-    @PostMapping("/income")
-    public String addIncome(
-            @RequestParam(required = false) String description,
-            @RequestParam double amount,
-            @RequestParam String category,
-            @RequestParam String date
-    ) {
-        Transaction t = new Transaction();
-        t.setDescription(description);
-        t.setAmount(amount);
-        t.setCategory(category);
-        t.setType("income");
-        t.setDate(LocalDate.parse(date));
-
-        service.save(t);
-        return "redirect:/income";
     }
 
     @PostMapping("/history/delete/{id}")

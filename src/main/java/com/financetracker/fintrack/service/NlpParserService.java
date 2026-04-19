@@ -115,7 +115,14 @@ public class NlpParserService {
         t.setDate(date);
         t.setCategory(category);
         t.setDescription(description);
-        t.setType("expense");
+        
+        // Detect type
+        String lowerInput = input.toLowerCase();
+        if (lowerInput.contains("earn") || lowerInput.contains("salary") || lowerInput.contains("received") || lowerInput.contains("got") || lowerInput.contains("income") || lowerInput.contains("profit") || lowerInput.contains("gift")) {
+            t.setType("income");
+        } else {
+            t.setType("expense");
+        }
 
         return t;
     }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expenses | FinTrack</title>
+    <title>Add Transaction | FinTrack</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -41,8 +41,8 @@
         .section-label { font-size:0.72rem; font-weight:600; text-transform:uppercase; letter-spacing:0.07em; color:var(--muted); padding-bottom:0.75rem; border-bottom:1px solid var(--border); margin-bottom:1.25rem; }
         .form-group { margin-bottom:1.1rem; }
         .form-group label { display:block; font-size:0.75rem; font-weight:500; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.4rem; }
-        .form-group input { width:100%; padding:0.7rem 0.85rem; border:1px solid var(--border); border-radius:4px; font-size:0.95rem; font-family:'Syne',sans-serif; background:var(--bg); color:var(--black); transition:border-color 0.15s; }
-        .form-group input:focus { outline:none; border-color:var(--black); }
+        .form-group input, .form-group select { width:100%; padding:0.7rem 0.85rem; border:1px solid var(--border); border-radius:4px; font-size:0.95rem; font-family:'Syne',sans-serif; background:var(--bg); color:var(--black); transition:border-color 0.15s; }
+        .form-group input:focus, .form-group select:focus { outline:none; border-color:var(--black); }
         .btn-submit { width:100%; padding:0.75rem; background:var(--black); color:var(--white); border:none; border-radius:4px; font-size:0.9rem; font-weight:500; font-family:'Syne',sans-serif; cursor:pointer; margin-top:0.5rem; transition:opacity 0.15s; }
         .btn-submit:hover { opacity:0.85; }
     </style>
@@ -52,8 +52,7 @@
         <span class="logo">FinTrack</span>
         <nav>
             <a th:href="@{/}">Dashboard</a>
-            <a th:href="@{/income}">Income</a>
-            <a th:href="@{/expense}" class="active">Expenses</a>
+            <a th:href="@{/transaction}" class="active">Transactions</a>
             <a th:href="@{/history}">History</a>
             <a th:href="@{/reports}">Reports</a>
             <a th:href="@{/insights}">Insights</a>
@@ -62,15 +61,15 @@
         </nav>
     </header>
     <main>
-        <p class="page-title">Log Expense</p>
+        <p class="page-title">Add Transaction</p>
 
         <div class="card nlp-card">
             <div class="nlp-title">Smart Input</div>
-            <p class="nlp-hint">Type a sentence like <em>"Spent 500 on food yesterday"</em> to auto-fill the form.</p>
-            <form action="/expense/nlp" method="POST">
+            <p class="nlp-hint">Type a sentence like <em>"Spent 500 on food yesterday"</em> or <em>"Earned 5000 as salary"</em> to auto-fill the form.</p>
+            <form action="/transaction/nlp" method="POST">
                 <div class="nlp-row">
                     <input id="nlpInput" class="nlp-input" type="text" name="nlpInput"
-                           placeholder="e.g. Spent 1200 on groceries yesterday" autocomplete="off">
+                           placeholder="e.g. Spent 1200 on groceries" autocomplete="off">
                     <button type="submit" class="nlp-btn">Parse</button>
                 </div>
             </form>
@@ -80,7 +79,14 @@
 
         <div class="card form-card">
             <div class="section-label">Manual Entry</div>
-            <form action="/expense" method="POST">
+            <form action="/transaction" method="POST">
+                <div class="form-group">
+                    <label for="type">Type</label>
+                    <select id="type" name="type" required>
+                        <option value="expense" th:selected="${param.nlpType != null && param.nlpType[0] == 'expense'}">Expense</option>
+                        <option value="income" th:selected="${param.nlpType != null && param.nlpType[0] == 'income'}">Income</option>
+                    </select>
+                </div>
                 <div class="form-group">
                     <label for="date">Date</label>
                     <input type="date" id="date" name="date" required
@@ -93,9 +99,12 @@
                 </div>
                 <div class="form-group">
                     <label for="category">Category</label>
-                    <input list="expenseCats" id="category" name="category" placeholder="Select or type…" required
+                    <input list="transactionCats" id="category" name="category" placeholder="Select or type…" required
                            th:value="${param.nlpCategory != null ? param.nlpCategory[0] : ''}">
-                    <datalist id="expenseCats">
+                    <datalist id="transactionCats">
+                        <option value="Salary"></option>
+                        <option value="Freelance"></option>
+                        <option value="Investment"></option>
                         <option value="Groceries"></option>
                         <option value="Transport"></option>
                         <option value="Utilities"></option>
@@ -113,7 +122,7 @@
                     <input type="text" id="description" name="description" placeholder="Add a note…"
                            th:value="${param.nlpDescription != null ? param.nlpDescription[0] : ''}">
                 </div>
-                <button type="submit" class="btn-submit">Save Expense</button>
+                <button type="submit" class="btn-submit">Save Transaction</button>
             </form>
         </div>
     </main>
