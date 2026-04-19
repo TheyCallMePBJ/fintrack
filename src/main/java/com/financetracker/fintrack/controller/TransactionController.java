@@ -1,6 +1,7 @@
 package com.financetracker.fintrack.controller;
 
 import com.financetracker.fintrack.model.Transaction;
+import com.financetracker.fintrack.service.NlpParserService;
 import com.financetracker.fintrack.service.TransactionService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,9 +15,11 @@ import jakarta.servlet.http.HttpSession;
 public class TransactionController {
 
     private final TransactionService service;
+    private final NlpParserService nlpParser;
 
-    public TransactionController(TransactionService service) {
+    public TransactionController(TransactionService service, NlpParserService nlpParser) {
         this.service = service;
+        this.nlpParser = nlpParser;
     }
 
     @GetMapping("/expense")
@@ -45,6 +48,33 @@ public class TransactionController {
 
         service.save(t);
         return "redirect:/expense";
+    }
+
+    /**
+     * Feature 3: Smart NLP Expense Input
+     * Parses a natural-language sentence and pre-fills the expense form.
+     */
+    @PostMapping("/expense/nlp")
+    public String parseNlpExpense(
+            @RequestParam String nlpInput,
+            HttpSession session
+    ) {
+        if (session.getAttribute("user") == null) {
+            return "redirect:/login";
+        }
+
+        Transaction parsed = nlpParser.parse(nlpInput);
+        if (parsed == null) {
+            // Could not parse — redirect back with error flag
+            return "redirect:/expense?nlpError=true";
+        }
+
+        // Pre-fill the form via query parameters
+        String redirect = "redirect:/expense?nlpAmount=" + parsed.getAmount()
+            + "&nlpCategory=" + java.net.URLEncoder.encode(parsed.getCategory(), java.nio.charset.StandardCharsets.UTF_8)
+            + "&nlpDate=" + parsed.getDate()
+            + "&nlpDescription=" + java.net.URLEncoder.encode(parsed.getDescription(), java.nio.charset.StandardCharsets.UTF_8);
+        return redirect;
     }
 
     @GetMapping("/income")

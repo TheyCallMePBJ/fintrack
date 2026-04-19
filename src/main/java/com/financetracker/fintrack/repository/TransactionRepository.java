@@ -11,8 +11,14 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     List<Transaction> findByType(String type);
 
     List<Transaction> findByTypeAndDateBetween(String type, LocalDate startDate, LocalDate endDate);
-    
+
     List<Transaction> findTop5ByOrderByDateDesc();
 
     List<Transaction> findByDateBetweenOrderByDateDesc(LocalDate startDate, LocalDate endDate);
+
+    // For insights — ordered ascending for trend analysis
+    List<Transaction> findByTypeAndDateBetweenOrderByDateAsc(String type, LocalDate startDate, LocalDate endDate);
+
+    // For prediction — all expenses ordered newest first
+    List<Transaction> findByTypeOrderByDateDesc(String type);
 }

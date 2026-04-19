@@ -31,10 +31,18 @@ public class MainController {
         double income = service.getCurrentMonthTotalIncome();
         double expense = service.getCurrentMonthTotalExpense();
 
+        // Feature 2: Prediction Engine
+        double predicted = service.getPredictedNextMonthExpense();
+        double trendPct = service.getExpenseTrendPercent();
+        List<Double> sparkline = service.getMonthlyExpenseTotals(4);
+
         model.addAttribute("totalIncome", income);
         model.addAttribute("totalExpense", expense);
         model.addAttribute("balance", income - expense);
         model.addAttribute("transactions", service.getRecentTransactions());
+        model.addAttribute("predictedExpense", predicted);
+        model.addAttribute("expenseTrendPct", trendPct);
+        model.addAttribute("sparkline", sparkline);
 
         return "index";
     }
@@ -78,10 +86,10 @@ public class MainController {
         if (session.getAttribute("user") == null) {
             return "redirect:/login";
         }
-        
+
         LocalDate start;
         LocalDate end;
-        
+
         if (startDate != null && !startDate.isEmpty() && endDate != null && !endDate.isEmpty()) {
             start = LocalDate.parse(startDate);
             end = LocalDate.parse(endDate);

@@ -4,133 +4,78 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reports | FinTrack</title>
-    <style>
-        :root {
-            --bg-color: #fcfcfc;
-            --text-color: #111;
-            --muted-color: #666;
-            --border-color: #eaeaea;
-            --card-bg: #fff;
-            --primary-color: #000;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            line-height: 1.5;
-        }
-        header {
-            padding: 1.5rem 2rem;
-            border-bottom: 1px solid var(--border-color);
-            background: var(--card-bg);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        header h1 { margin: 0; font-size: 1.25rem; font-weight: 600; }
-        nav a {
-            color: var(--muted-color);
-            text-decoration: none;
-            margin-left: 1.5rem;
-            font-size: 0.95rem;
-            transition: color 0.2s;
-        }
-        nav a:hover, nav a.active { color: var(--primary-color); font-weight: 500; }
-        main {
-            max-width: 900px;
-            margin: 3rem auto;
-            padding: 0 2rem;
-        }
-        h2 { font-size: 1.75rem; font-weight: 500; margin-bottom: 2rem; text-align: center; }
-        .chart-container {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 2rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-            position: relative;
-            height: 400px;
-        }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root { --black:#0a0a0a; --white:#ffffff; --bg:#f5f5f5; --border:#e2e2e2; --muted:#737373; --card:#ffffff; }
+        body { font-family:'Syne',sans-serif; background:var(--bg); color:var(--black); line-height:1.5; }
+        header { background:var(--black); color:var(--white); padding:0 2.5rem; height:52px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:10; }
+        .logo { font-size:0.95rem; font-weight:600; letter-spacing:-0.01em; }
+        nav { display:flex; gap:0.25rem; }
+        nav a { color:rgba(255,255,255,0.55); text-decoration:none; font-size:0.82rem; font-weight:500; padding:0.35rem 0.75rem; border-radius:4px; transition:color 0.15s,background 0.15s; }
+        nav a:hover { color:var(--white); background:rgba(255,255,255,0.08); }
+        nav a.active { color:var(--white); }
+        nav a.danger { color:rgba(255,255,255,0.4); }
+        nav a.danger:hover { color:#fca5a5; background:rgba(255,255,255,0.05); }
+        main { max-width:920px; margin:2.5rem auto; padding:0 2rem; }
+        .page-title { font-size:1rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:1.5rem; }
+        .chart-card { background:var(--card); border:1px solid var(--border); border-radius:6px; padding:2rem; }
+        .chart-wrap { position:relative; height:380px; }
+    </style>
 </head>
 <body>
     <header>
-        <h1>FinTrack</h1>
+        <span class="logo">FinTrack</span>
         <nav>
             <a th:href="@{/}">Dashboard</a>
             <a th:href="@{/income}">Income</a>
             <a th:href="@{/expense}">Expenses</a>
             <a th:href="@{/history}">History</a>
             <a th:href="@{/reports}" class="active">Reports</a>
-            <a th:href="@{/logout}" style="color: #ef4444;">Logout</a>
+            <a th:href="@{/insights}">Insights</a>
+            <a th:href="@{/goals}">Goals</a>
+            <a th:href="@{/logout}" class="danger">Logout</a>
         </nav>
     </header>
     <main>
-        <h2 th:text="'Expenses for ' + ${currentYear}">Expenses</h2>
-        <div class="chart-container">
-            <canvas id="expenseChart"></canvas>
+        <p class="page-title" th:text="${'Expense Report — ' + currentYear}">Expense Report</p>
+        <div class="chart-card">
+            <div class="chart-wrap">
+                <canvas id="expenseChart"></canvas>
+            </div>
         </div>
     </main>
-
     <script th:inline="javascript">
         /*<![CDATA[*/
         var labels = /*[[${labels}]]*/ [];
         var categoryData = /*[[${categoryData}]]*/ {};
-        
+        var colors = ['#0a0a0a','#404040','#737373','#a3a3a3','#d4d4d4','#262626','#525252','#8a8a8a','#b5b5b5','#e5e5e5'];
         var datasets = [];
-        var colors = [
-            '#0f172a', '#3b82f6', '#10b981', '#ef4444', '#f59e0b', 
-            '#8b5cf6', '#ec4899', '#14b8a6', '#64748b', '#84cc16'
-        ];
-        
-        var colorIdx = 0;
-        for (var category in categoryData) {
-            if (categoryData.hasOwnProperty(category)) {
-                datasets.push({
-                    label: category,
-                    data: categoryData[category],
-                    backgroundColor: colors[colorIdx % colors.length]
-                });
-                colorIdx++;
+        var i = 0;
+        for (var cat in categoryData) {
+            if (categoryData.hasOwnProperty(cat)) {
+                datasets.push({ label: cat, data: categoryData[cat], backgroundColor: colors[i++ % colors.length], borderRadius: 3 });
             }
         }
-        
         var ctx = document.getElementById('expenseChart').getContext('2d');
-        var expenseChart = new Chart(ctx, {
+        new Chart(ctx, {
             type: 'bar',
-            data: {
-                labels: labels,
-                datasets: datasets
-            },
+            data: { labels: labels, datasets: datasets },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    x: {
-                        stacked: true,
-                        grid: { display: false }
-                    },
-                    y: {
-                        stacked: true,
-                        beginAtZero: true,
-                        grid: { color: '#eaeaea' },
-                        ticks: {
-                            callback: function(value) { return '₹' + value; }
-                        }
-                    }
+                    x: { stacked: true, grid: { display: false }, ticks: { font: { family: 'Outfit', size: 11 } } },
+                    y: { stacked: true, beginAtZero: true, grid: { color: '#f0f0f0' },
+                         ticks: { callback: function(v){ return '₹'+v; }, font: { family: 'Outfit', size: 11 } } }
                 },
                 plugins: {
-                    legend: { position: 'top' },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return context.dataset.label + ': ₹' + context.raw;
-                            }
-                        }
-                    }
+                    legend: { position: 'top', labels: { font: { family: 'Outfit', size: 12 }, padding: 16 } },
+                    tooltip: { callbacks: { label: function(c){ return c.dataset.label+': ₹'+c.raw; } } }
                 }
             }
         });
