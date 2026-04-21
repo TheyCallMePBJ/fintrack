@@ -332,7 +332,6 @@
             var d = new Date(now.getFullYear(), now.getMonth() - i, 1);
             labels.push(months[d.getMonth()]);
         }
-        labels.reverse();
         var max = Math.max.apply(null, data.map(function(v){ return v || 0; })) || 1;
         var bars = document.getElementById('sparkBars');
         var lbls = document.getElementById('sparkLabels');
